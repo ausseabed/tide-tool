@@ -44,9 +44,43 @@ class ZdfUnparsed(ZdfBlock):
     def to_strings(self) -> List[str]:
         return self.strings
 
-    
+
+class ZdfTideStation(ZdfBlock):
+
+    def __init__(self, type: str) -> None:
+        super().__init__(type)
+        # list of tuples, each tuple is
+        #     (tide station name, lat, long, unknown float, unknown float, tide filename)
+        self.data = []
+
+
+    def from_strings(self, strings: List[str]) -> None:
+        for s in strings:
+            s_bits = s.split(',')
+            d = (
+                s_bits[0],
+                float(s_bits[1]),
+                float(s_bits[2]),
+                float(s_bits[3]),
+                float(s_bits[4]),
+                s_bits[5]
+            )
+            self.data.append(d)
+
+
+    def to_strings(self) -> List[str]:
+        lines = [
+            f"{d[0]},{d[1]},{d[2]},{d[3]},{d[4]},{d[5]}"
+            for d in self.data
+        ]
+        return lines
+
+
 def block_for_type(type: str) -> ZdfBlock:
-    return ZdfUnparsed(type)
+    if type == 'TIDE_STATION':
+        return ZdfTideStation(type)
+    else:
+        return ZdfUnparsed(type)
 
 
 class ZoneDefinitionFile:
