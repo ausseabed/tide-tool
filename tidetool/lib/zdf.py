@@ -1,9 +1,15 @@
-
-
-
 from pathlib import Path
 from typing import List
 import re
+
+
+class ZdfParsingException(Exception):
+    """ Exception definition for when the parsing of a zdf file fails
+    """
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
 
 class ZdfBlock:
     def __init__(self, type: str) -> None:
@@ -57,14 +63,25 @@ class ZdfTideStation(ZdfBlock):
     def from_strings(self, strings: List[str]) -> None:
         for s in strings:
             s_bits = s.split(',')
-            d = (
-                s_bits[0],
-                float(s_bits[1]),
-                float(s_bits[2]),
-                float(s_bits[3]),
-                float(s_bits[4]),
-                s_bits[5]
-            )
+            if len(s_bits) != 6:
+                raise ZdfParsingException(
+                    "Error reading Tide Station data line, "
+                    f"expected 6 values got {len(s_bits)}"
+                )
+            try:
+                d = (
+                    s_bits[0],
+                    float(s_bits[1]),
+                    float(s_bits[2]),
+                    float(s_bits[3]),
+                    float(s_bits[4]),
+                    s_bits[5]
+                )
+            except ValueError as ex:
+                raise ZdfParsingException(
+                    "Error reading Tide Station data line, "
+                    f"bad format at line \"{s}\""
+                )
             self.data.append(d)
 
 
@@ -102,36 +119,52 @@ class ZoneDefinitionFile:
 
 
 class ZdfParser:
+    """ Parser for the CARIS Zone Definition File (zdf). zdf files are broken
+    down into a number of blocks, each starting with a type definition line
+    eg; [TIDE_STATION], that is the followed by a number of data lines. Data
+    lines in each block are formatted consistently, but differ across the
+    different block types.
+
+    This parser will read all block types, but most are treated in a generic
+    manner. Only some block types have the actual information processed (as
+    required by the tool).
+    """
 
     def __init__(self) -> None:
+        # ZDF object that includes the details (ZoneDefinitionFile)
         self.zdf = None
+
 
     def _get_type(self, line:str) -> str:
         result = re.search(r'\[(.*?)\]', line)
-        
+
         if result is None:
             # no match, not a type line
             raise RuntimeError("Not a type line, expected something like \"[ZONE]\"")
 
         return result.groups()[0]
 
+
     def _get_block(self, block_type: str, lines: List[str]) -> ZdfBlock:
         block = block_for_type(block_type)
         block.from_strings(lines)
         return block
 
-    def _process_lines(self, lines: List[str]) -> None:
-        
 
+    def _process_lines(self, lines: List[str]) -> None:
         type = None
         block_lines = None
 
         for (i, line) in enumerate(lines):
-            
             if line.startswith('['):
                 if block_lines is not None:
                     block = self._get_block(type, block_lines)
-                    self.zdf.add_block(block)
+                    try:
+                        self.zdf.add_block(block)
+                    except ZdfParsingException as zfdex:
+                        raise ZdfParsingException(
+                            f"Parsing error in block starting at line {i}"
+                        )
 
                 type = self._get_type(line)
                 block_lines = []
@@ -146,8 +179,13 @@ class ZdfParser:
 
 
     def read(self, path: Path) -> ZoneDefinitionFile:
+        """ Read the zdf file.
+
+        Will raise a ZdfParsingException if an errror occurs.
+        """
         self.zdf = ZoneDefinitionFile(path)
 
         with path.open('r') as file:
             lines = file.read().splitlines()
+            self._process_lines(lines)
 

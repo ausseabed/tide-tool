@@ -1,7 +1,7 @@
 import pytest
 
 from tidetool.lib.zdf import ZdfParser, ZoneDefinitionFile, \
-    ZdfTideStation
+    ZdfTideStation, ZdfParsingException
 from tests.lib.mock_data import mock_data_01
 
 
@@ -36,3 +36,21 @@ def test_zdf_tidestation():
     assert ts.data[0][0] == "tide11"
     assert ts.data[0][1] == -13.954114
     assert ts.data[1][5] == "ga0276_12_msl.tid"
+
+
+def test_zdf_tidestation_exceptions():
+    # string where a float is expected
+    lines = [
+        "tide11,asddf,141.055087,0.0,0.01,ga0276_11_msl.tid",
+    ]
+    ts = ZdfTideStation('TIDE_STATION')
+
+    with pytest.raises(ZdfParsingException) as e_info:
+        ts.from_strings(lines)
+
+    # 5 segments where 6 is expected
+    lines = [
+        "tide11,-13.0,141.055087,0.01,ga0276_11_msl.tid",
+    ]
+    with pytest.raises(ZdfParsingException) as e_info:
+        ts.from_strings(lines)
