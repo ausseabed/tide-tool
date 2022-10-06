@@ -23,3 +23,7 @@ RUN make install
 RUN ldconfig
 
 RUN pip3 install numpy pytz click pytest
+
+WORKDIR /code
+ADD . /code
+RUN pip install -e .
