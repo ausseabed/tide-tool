@@ -21,7 +21,7 @@ def test_zdf_parser_processlines():
 
     parser._process_lines(mock_data_01)
 
-    assert len(zdf.blocks) == 5
+    assert len(zdf.blocks) == 6
 
 
 def test_zdf_tidestation():
@@ -54,3 +54,15 @@ def test_zdf_tidestation_exceptions():
     ]
     with pytest.raises(ZdfParsingException) as e_info:
         ts.from_strings(lines)
+
+
+def test_blocks_for_type():
+    zdf = ZoneDefinitionFile(filename=None)
+    parser = ZdfParser()
+    parser.zdf = zdf
+
+    parser._process_lines(mock_data_01)
+
+    assert len(zdf.get_blocks_by_type("ZONE")) == 2
+    assert len(zdf.get_blocks_by_type("TIDE_STATION")) == 1
+    assert len(zdf.get_blocks_by_type("FOO_BAR")) == 0

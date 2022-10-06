@@ -118,6 +118,16 @@ class ZoneDefinitionFile:
         self.blocks.append(block)
 
 
+    def get_blocks_by_type(self, type: str) -> List[ZdfBlock]:
+        """ Returns a list of blocks that have the given type
+        """
+        def block_filter(b: ZdfBlock) -> bool:
+            return b.type == type
+        blocks_with_type = filter(block_filter, self.blocks)
+
+        return list(blocks_with_type)
+
+
 class ZdfParser:
     """ Parser for the CARIS Zone Definition File (zdf). zdf files are broken
     down into a number of blocks, each starting with a type definition line
