@@ -5,17 +5,18 @@ specific year for an entire year.
 """
 
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import List, Tuple
 import pyfes
 import numpy as np
 
 
-def get_load_tide_config() -> str:
-    raise RuntimeError("TODO")
+def get_load_tide_config(data_folder: Path) -> str:
+    return str(data_folder.joinpath('load_tide.ini'))
 
 
-def get_ocean_tide_config() -> str:
-    raise RuntimeError("TODO")
+def get_ocean_tide_config(data_folder: Path) -> str:
+    return str(data_folder.joinpath('ocean_tide.ini'))
 
 
 def _generate_annual_dates(year: int, time_period: int) -> np.array:
@@ -68,7 +69,10 @@ def _get_tide_data(
 
 
 def get_tide_data(
-        year: int, latitude: float, longitude: float, time_period: int = 10
+        data_folder: Path,
+        year: int,
+        latitude: float, longitude: float,
+        time_period: int = 10
         ) -> List[Tuple[datetime, float]]:
     """ Generates a datetime vs height (float) tide dataset for the given
         year and location (latitude, longitude)
@@ -90,8 +94,8 @@ def get_tide_data(
     # this is really just a helper function to make dealing with the 
     # config files a bit easier. Actual tide calcs performed in
     # _get_tide_data
-    ocean_cfg = get_ocean_tide_config()
-    load_cfg = get_load_tide_config()
+    ocean_cfg = get_ocean_tide_config(data_folder)
+    load_cfg = get_load_tide_config(data_folder)
 
     return _get_tide_data(year, latitude, longitude, time_period,
                           ocean_cfg, load_cfg)
