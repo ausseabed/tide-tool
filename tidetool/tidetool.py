@@ -49,15 +49,6 @@ configure_logger()
     )
 )
 @click.option(
-    '--year',
-    required=False,
-    default=2005,
-    type=int,
-    help=(
-        "Tide data will be generated for this calendar year"
-    )
-)
-@click.option(
     '-tp', '--time-period',
     required=False,
     default=10,
@@ -81,13 +72,11 @@ def generate_tides(ctx, zone_definition, data_folder, year, time_period):
     click.echo(f"running on: {zone_definition} for year {year}")
 
     generate_tides_from_zdf(
-        zone_definition,
-        data_folder,
+        Path(zone_definition),
+        Path(data_folder),
         year,
         time_period
     )
-
-
 
 
 @click.group()
