@@ -2,7 +2,7 @@ from pathlib import Path
 import click
 import logging
 
-from tidetool.lib.tide_generation import generate_tides_from_zdf
+from tidetool.lib.tide_generation import TideGenerator
 
 def configure_logger():
     logging.basicConfig(level="DEBUG")
@@ -71,9 +71,15 @@ def generate_tides(ctx, zone_definition, data_folder, year, time_period):
         raise RuntimeError("Year must be between 1900 and 2100")
     click.echo(f"running on: {zone_definition} for year {year}")
 
-    generate_tides_from_zdf(
+    tg = TideGenerator(Path(data_folder))
+
+    # setup an simple log function
+    def log_fn(message: str):
+        click.echo(message)
+    tg.log_function = log_fn
+
+    tg.generate_tides_from_zdf(
         Path(zone_definition),
-        Path(data_folder),
         year,
         time_period
     )
