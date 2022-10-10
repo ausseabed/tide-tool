@@ -17,6 +17,10 @@ class TideGenerator:
     def __init__(self, data_folder: Path) -> None:
         self.data_folder = data_folder
         self.log_function = None
+        # should tided files be overwritten if they already exist
+        # if false the process will raise a runtime error. If true
+        # it will replace existing files.
+        self.overwrite = False
 
         self._tidefile_count = 0
         self._tidefile_total = 0
@@ -52,6 +56,15 @@ class TideGenerator:
         filename = f"{filename}.test"
 
         output_file = output_location.joinpath(filename)
+        if output_file.exists() and not self.overwrite:
+            # then we should not overwrite the file
+            self._log_message(
+                "Tide file exists and overwrite option is set to false, "
+                "this process will fail. Please remove existing tide files "
+                "or include `-o` option in command line."
+            )
+            raise RuntimeError(
+                f"File {output_file} exists without overwrite option")
         self._log_message(
             "Generating tide file ("
             f"{self._tidefile_count}/{self._tidefile_total}"
