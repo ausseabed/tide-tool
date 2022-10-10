@@ -6,8 +6,10 @@ a Zone Definition File.
 from pathlib import Path
 
 from tidetool.lib.zdf import ZdfParser
+from tidetool.lib.tides import get_tide_data
 
 def _process_tide_station(
+        data_folder: Path,
         output_location: Path,
         filename: str,
         year: int,
@@ -16,7 +18,27 @@ def _process_tide_station(
     """ generates a tide data file with the given filename in the
     output_location folder
     """
-    pass
+    tide_data = get_tide_data(
+        data_folder,
+        year,
+        latitude, longitude,
+        time_period
+    )
+
+    filename = f"{filename}.test"
+
+    output_file = output_location.joinpath(filename)
+    with output_file.open('w') as output:
+        # all tide files start with this line
+        output.write('--------\n')
+        for td in tide_data:
+            timestamp, height = td
+            # CARIS tide files use UTC so don't need to include zone
+            timestamp_str = timestamp.strftime("%Y/%d/%m %H:%M")
+            # height is always 6 chars wide, right justified
+            height_str = f"{height: .2f}".rjust(6)
+            line = f"{timestamp_str} {height_str}\n"
+            output.write(line)
 
 
 def generate_tides_from_zdf(
@@ -44,6 +66,7 @@ def generate_tides_from_zdf(
         for tsb_entry in tsb.data:
             _, latitude, longitude, _, _, filename = tsb_entry
             _process_tide_station(
+                data_folder,
                 output_folder,
                 filename,
                 year,
