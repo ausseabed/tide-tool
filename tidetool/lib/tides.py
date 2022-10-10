@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Tuple
 import pyfes
 import numpy as np
+import os
 
 
 def get_load_tide_config(data_folder: Path) -> str:
@@ -42,6 +43,12 @@ def _get_tide_data(
         time_period: int,
         ocean_config: str, load_config:str
         ) -> List[Tuple[datetime, float]]:
+    # pyfes seems to not resolve locations of files referred to in the
+    # config ini files correctly, this has only been noted to occur on
+    # windows. Workaround is to set the work dir to the folder the config
+    # files and some reworking of the folder structure containing the NetCDF
+    # grids
+    os.chdir(Path(ocean_config).parent)
 
     # Create handler
     short_tide = pyfes.Handler('ocean', 'io', ocean_config)
