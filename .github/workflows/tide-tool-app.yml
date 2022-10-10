@@ -2,6 +2,16 @@
 # for the Tide Tool
 name: 'Tide Tool application'
 description: 'Unit tests for the tide tool application'
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
 runs:
   using: 'docker'
   image: 'Dockerfile'
