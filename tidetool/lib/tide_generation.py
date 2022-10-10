@@ -34,7 +34,7 @@ def _process_tide_station(
         for td in tide_data:
             timestamp, height = td
             # CARIS tide files use UTC so don't need to include zone
-            timestamp_str = timestamp.strftime("%Y/%d/%m %H:%M")
+            timestamp_str = timestamp.strftime("%Y/%m/%d %H:%M")
             # height is always 6 chars wide, right justified
             height_str = f"{height: .2f}".rjust(6)
             line = f"{timestamp_str} {height_str}\n"
