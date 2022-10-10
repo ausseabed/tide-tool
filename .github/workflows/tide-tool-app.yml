@@ -1,0 +1,7 @@
+# Uses the Dockerfile in the root of this repo to run unit tests
+# for the Tide Tool
+name: 'Tide Tool application'
+description: 'Unit tests for the tide tool application'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
