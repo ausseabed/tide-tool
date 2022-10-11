@@ -18,4 +18,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Pytest action step
-        uses: .
+        uses: ./.github/pytest/

@@ -6,3 +6,4 @@ description: 'Unit tests for the tide tool application'
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  working-directory: ./
