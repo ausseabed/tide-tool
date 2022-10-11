@@ -53,8 +53,6 @@ class TideGenerator:
             time_period
         )
 
-        filename = f"{filename}.test"
-
         output_file = output_location.joinpath(filename)
         if output_file.exists() and not self.overwrite:
             # then we should not overwrite the file
