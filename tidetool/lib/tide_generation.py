@@ -3,6 +3,7 @@ a Zone Definition File.
 """
 
 
+from datetime import datetime
 from pathlib import Path
 
 from tidetool.lib.zdf import ZdfParser
@@ -40,7 +41,7 @@ class TideGenerator:
             self,
             output_location: Path,
             filename: str,
-            year: int,
+            start_date: datetime, end_date: datetime,
             time_period: int,
             latitude: float, longitude: float) -> None:
         """ generates a tide data file with the given filename in the
@@ -48,7 +49,7 @@ class TideGenerator:
         """
         tide_data = get_tide_data(
             self.data_folder,
-            year,
+            start_date, end_date,
             latitude, longitude,
             time_period
         )
@@ -85,7 +86,7 @@ class TideGenerator:
     def generate_tides_from_zdf(
             self,
             zone_definition: Path,
-            year: int,
+            start_date: datetime, end_date: datetime,
             time_period: int) -> None:
         """ Reads the input zone_definition file to extract file names
         and locations to generate tide data files for. The tide data
@@ -117,7 +118,7 @@ class TideGenerator:
                 self._process_tide_station(
                     output_folder,
                     filename,
-                    year,
+                    start_date, end_date,
                     time_period,
                     latitude, longitude
                 )

@@ -37,8 +37,26 @@ def _generate_annual_dates(year: int, time_period: int) -> np.array:
     return dates
 
 
+def _generate_dates_between(
+        start_date: datetime,
+        end_date: datetime,
+        time_period: int) -> np.array:
+    """ Generate a number of datetime objects between the start_data and
+    end_date with a spacing as specifed by the time_period (minutes)
+    """
+    dates_list = []
+
+    current_datetime = start_date
+    dt = timedelta(minutes=time_period)
+    while current_datetime < end_date:
+        dates_list.append(current_datetime)
+        current_datetime += dt
+
+    return np.array(dates_list)
+
+
 def _get_tide_data(
-        year: int,
+        start_date: datetime, end_date: datetime,
         latitude: float, longitude: float,
         time_period: int,
         ocean_config: str, load_config:str
@@ -55,7 +73,7 @@ def _get_tide_data(
     radial_tide = pyfes.Handler('radial', 'io', load_config)
 
     # datetimes that the tide will be calculated for
-    dates = _generate_annual_dates(year, time_period)
+    dates = _generate_dates_between(start_date, end_date, time_period)
 
     lats = np.full(dates.shape, latitude)
     lons = np.full(dates.shape, longitude)
@@ -77,7 +95,7 @@ def _get_tide_data(
 
 def get_tide_data(
         data_folder: Path,
-        year: int,
+        start_date: datetime, end_date: datetime,
         latitude: float, longitude: float,
         time_period: int = 10
         ) -> List[Tuple[datetime, float]]:
@@ -85,8 +103,10 @@ def get_tide_data(
         year and location (latitude, longitude)
 
         Args:
-            year (int): Year (eg 2005) that the annual tide data will be
+            start_date (datetime): Date from which the tide data will be
                 generated for.
+            end_date (datetime): Tide data will be generated up to and
+                including this date.
             latitude (float): Latitude component of the location to
                 generate the tide data for.
             longitude (float): Longitude component of the location to
@@ -104,6 +124,10 @@ def get_tide_data(
     ocean_cfg = get_ocean_tide_config(data_folder)
     load_cfg = get_load_tide_config(data_folder)
 
-    return _get_tide_data(year, latitude, longitude, time_period,
-                          ocean_cfg, load_cfg)
+    return _get_tide_data(
+        start_date, end_date,
+        latitude, longitude,
+        time_period,
+        ocean_cfg, load_cfg
+    )
 
