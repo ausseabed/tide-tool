@@ -45,14 +45,15 @@ Clone the repository
     git clone https://github.com/ausseabed/tide-tool.git
     cd tide-tool
 
-Create and activate python environment
+Create, activate and update python environment
 
-    conda create -n tide-tool python=3.10
+    conda create -n tide-tool python=3.9
     conda activate tide-tool
+    conda update --all -c conda-forge
 
 Install pyfes (the AVISO FES library)
 
-    conda install -c fbriol pyfes
+    conda install pyfes -c fbriol -c conda-forge
 
 Install the tide tool and its other python dependencies
 
